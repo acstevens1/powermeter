@@ -1,4 +1,4 @@
-import httplib urllib
+import httplib, urllib
 import time, datetime, serial, sys
 import eeml
 from xbee import xbee
@@ -13,7 +13,7 @@ LOG_FILE = "log_power.csv" # store data in logfile
 
 SERIALPORT = "/dev/ttyUSB" #USB Serial port -> XBEE
 BAUDRATE = 9600
-CURRENT SENSE = 4
+CURRENTSENSE = 4
 VOLTSENSE = 0
 MAINSVPP = 340 * 2
 vrefcalibration = [492,  #0
@@ -64,58 +64,58 @@ def update_graph(idleevent):
         voltagedata[i] = xb.analog_samples[i+1][VOLTSENSE]
         ampdata[i] = xb.analog_samples[i+1][CURRENTSENSE]
 
-    if DEBUG
+    if DEBUG:
         print "ampdata: "+str(ampdata)
         print "voltdata: "+str(voltagedata)
 
 #normalising data
-min_v = 1024 #xbee adc is 10 bits so max = 1023
-max_v = 0
+    min_v = 1024 #xbee adc is 10 bits so max = 1023
+    max_v = 0
     for i in range(len(voltagedata)):
-    if (min_v > voltagedata[i]):
-        min_v = voltagedata[i]
-    if (max_v < voltagedata[i]):
-        max_v = voltagedata[i]
+        if (min_v > voltagedata[i]):
+            min_v = voltagedata[i]
+        if (max_v < voltagedata[i]):
+            max_v = voltagedata[i]
 
 #average of min & max voltage
 
-avg_v = (max_v + min_v) / 2
-vpp = max_v-min_v #vpp
+    avg_v = (max_v + min_v) / 2
+    vpp = max_v-min_v #vpp
 
-for i in range(len(voltagedata)):
+    for i in range(len(voltagedata)):
     #remove dc bias
-    voltagedata[i] -= avg_v
-    voltagedata[i] = (voltagedata[i] * MAINSVPP) / vpp
+        voltagedata[i] -= avg_v
+        voltagedata[i] = (voltagedata[i] * MAINSVPP) / vpp
 
 #normailse current
 
-for i in range(len(ampdata)):
-    if vrefcalibration[xb.address_16]:
-        ampdata[i] -= vrefcalibration[xb.address_16]
-    else:
-        ampdata[i] -= vrefcalibration[0]
+    for i in range(len(ampdata)):
+        if vrefcalibration[xb.address_16]:
+            ampdata[i] -= vrefcalibration[xb.address_16]
+        else:
+            ampdata[i] -= vrefcalibration[0]
 
     ampdata[i] /= CURRENTNORM
 
-print "Voltage: ", voltagedata
-print "Current: ". ampdata
+    print "Voltage: ", voltagedata
+    print "Current: ". ampdata
 
 #calculate power
 
-wattdata = [0] * len(voltagedata)
-for i in range(len(wattdata)):
-    wattdata[i] = voltagedata[i] * ampdata[i]
+    wattdata = [0] * len(voltagedata)
+    for i in range(len(wattdata)):
+        wattdata[i] = voltagedata[i] * ampdata[i]
 
 #sum current over 1/50Hz
-avgamp = 0
+    avgamp = 0
 #20 cycles per seccond
 
-for i in range(20):
-    avgamp += abs(ampdata[i])
-    avgamp /= 20
+    for i in range(20):
+        avgamp += abs(ampdata[i])
+        avgamp /= 20
 
 #sum power over 1/50Hz
-avgwatt = 0
+    avgwatt = 0
 
 #20 cycles per seccond
 
@@ -158,22 +158,22 @@ try:
     response = conn.getresponse()
     print response.status, response.reason
     data = response.read()
-    conn.close:
+    conn.close()
 except:
     print "connection failed"
 
 
 # Print out debug data, Wh used in last 5 minutes
 avgwattsused = sensorhistory.avgwattover5min()
-    print time.strftime("%Y %m %d, %H:%M")+", "+str(sensorhistory.sensornum)+", "+str(sensorhistory.avgwattover5min())+"\n"
+print time.strftime("%Y %m %d, %H:%M")+", "+str(sensorhistory.sensornum)+", "+str(sensorhistory.avgwattover5min())+"\n"
         
-        # Lets log it! Seek to the end of our log file
-        if logfile:
-            logfile.seek(0, 2) # 2 == SEEK_END. ie, go to the end of the file
-            logfile.write(time.strftime("%Y %m %d, %H:%M")+", "+
-                          str(sensorhistory.sensornum)+", "+
-                          str(sensorhistory.avgwattover5min())+"\n")
-        logfile.flush()
+# Lets log it! Seek to the end of our log file
+if logfile:
+    logfile.seek(0, 2) # 2 == SEEK_END. ie, go to the end of the file
+    logfile.write(time.strftime("%Y %m %d, %H:%M")+", "+
+                str(sensorhistory.sensornum)+", "+
+                str(sensorhistory.avgwattover5min())+"\n")
+    logfile.flush()
 
 if __name__ == "__main__":
     while True:
