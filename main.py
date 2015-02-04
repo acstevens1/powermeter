@@ -10,7 +10,7 @@ from time import sleep, localtime, strftime
 API_KEY = "SBK6PW8UFZQ81MZR" #API Key for ThingSpeak
 API_URL = "api.thingspeak.com:80" #API URL
 
-ENERGY_PRICE = 0.30
+ENERGY_PRICE = 0.30 #needs to be set by user at later date (cost per kWh)
 
 LOG_FILE = "log_power.csv" # store data in logfile
 
@@ -105,7 +105,7 @@ def update_graph(idleevent):
 
 #sum current over 1/50Hz
     avgamp = 0
-#20 cycles per seccond
+#17 cycles per seccond
 
     for i in range(17):
 	 avgamp += abs(ampdata[i])
@@ -114,10 +114,10 @@ def update_graph(idleevent):
 #sum power over 1/50Hz
     avgwatt = 0
 
-#20 cycles per seccond
+#17 cycles per seccond
 
     for i in range(17):
-   	 avgwatt += abs(wattdata[i])
+    avgwatt += abs(wattdata[i])
     avgwatt /= 17.0
 
     sensorhistory = sensorhistories.find(xb.address_16)
